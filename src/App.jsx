@@ -104,8 +104,9 @@ Return ONLY a single valid JSON object. No markdown. No text before or after:
       });
 
       const data = await res.json();
-      if (res.status === 529 || data.error?.type === "overloaded_error") {
-        await new Promise(r => setTimeout(r, (attempt + 1) * 10000));
+      if (res.status === 529 || res.status === 429 || data.error?.type === "overloaded_error" || data.error?.type === "rate_limit_error") {
+        const wait = (attempt + 1) * 15000;
+        await new Promise(r => setTimeout(r, wait));
         continue;
       }
       if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
@@ -124,10 +125,10 @@ Return ONLY a single valid JSON object. No markdown. No text before or after:
 
 // ─── STYLES — CLEAN LIGHT THEME ───────────────────────────────────────────────
 const G = `
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{background:#F4F6F9;font-family:'Inter',sans-serif;color:#0F1E2E;font-size:15px;overflow:hidden}
+body{background:#F4F6F9;font-family:'Montserrat',sans-serif;color:#0F1E2E;font-size:15px;overflow:hidden}
 #root{height:100%}
 .app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
 
@@ -152,15 +153,15 @@ body{background:#F4F6F9;font-family:'Inter',sans-serif;color:#0F1E2E;font-size:1
 .fld{display:flex;flex-direction:column;gap:4px}
 .flbl{font-size:11px;font-weight:600;color:#374151;letter-spacing:.4px}
 textarea,input[type=text]{width:100%;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:4px;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#0F1E2E;outline:none;transition:border-color .2s;line-height:1.6}
-input[type=text]{font-family:'Inter',sans-serif;font-size:13px}
+input[type=text]{font-family:'Montserrat',sans-serif;font-size:13px}
 textarea{resize:none;min-height:90px}
 textarea:focus,input:focus{border-color:#CC0000;background:#fff}
-textarea::placeholder,input::placeholder{color:#94A3B8;font-family:'Inter',sans-serif}
+textarea::placeholder,input::placeholder{color:#94A3B8;font-family:'Montserrat',sans-serif}
 
-.runbtn{width:100%;padding:11px;background:#CC0000;border:none;border-radius:4px;color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.3px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.runbtn{width:100%;padding:11px;background:#CC0000;border:none;border-radius:4px;color:#fff;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;letter-spacing:.3px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
 .runbtn:hover:not(:disabled){background:#AA0000;box-shadow:0 4px 16px rgba(204,0,0,.25)}
 .runbtn:disabled{background:#CBD5E1;color:#94A3B8;cursor:not-allowed}
-.sampbtn{background:none;border:1px dashed #CBD5E1;border-radius:4px;padding:7px;font-size:11px;color:#94A3B8;cursor:pointer;width:100%;font-family:'Inter',sans-serif;transition:all .2s}
+.sampbtn{background:none;border:1px dashed #CBD5E1;border-radius:4px;padding:7px;font-size:11px;color:#94A3B8;cursor:pointer;width:100%;font-family:'Montserrat',sans-serif;transition:all .2s}
 .sampbtn:hover{border-color:#CC0000;color:#CC0000}
 
 .acct-list{flex:1;overflow-y:auto;padding:8px 0;background:#fff}
@@ -509,7 +510,7 @@ export default function App() {
       }
 
       setProgress(p => ({ ...p, done:i+1 }));
-      if (i < lines.length-1 && !abortRef.current) await new Promise(r=>setTimeout(r,2500));
+      if (i < lines.length-1 && !abortRef.current) await new Promise(r=>setTimeout(r,8000));
     }
 
     setProgress(p => ({ ...p, msg:"" }));
