@@ -111,7 +111,9 @@ Return ONLY a single valid JSON object. No markdown. No text before or after:
       }
       if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
 
-      const raw = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+      const raw = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("")
+        .replace(/<cite[^>]*>/g, "").replace(/<\/cite>/g, "")  // strip web search citations
+        .replace(/\[\d+\]/g, "");                               // strip [1] style citations
       const obj = extractObject(raw);
       if (obj) return { ...obj, companyName: obj.companyName || name };
       throw new Error("Could not parse response");
@@ -510,7 +512,7 @@ export default function App() {
       }
 
       setProgress(p => ({ ...p, done:i+1 }));
-      if (i < lines.length-1 && !abortRef.current) await new Promise(r=>setTimeout(r,8000));
+      if (i < lines.length-1 && !abortRef.current) await new Promise(r=>setTimeout(r,12000));
     }
 
     setProgress(p => ({ ...p, msg:"" }));
